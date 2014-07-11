@@ -32,6 +32,7 @@ class UserProfilesPlugin extends Omeka_Plugin_AbstractPlugin
     {
         if(plugin_is_active('GuestUser')) {
             $this->_filters[] = 'guest_user_links';
+            $this->_filters[] = 'guest_user_widgets';
         }
         parent::setUp();
     }
@@ -162,6 +163,24 @@ class UserProfilesPlugin extends Omeka_Plugin_AbstractPlugin
             $links['UserProfiles'] = array('label'=>'My Profiles', 'uri'=>url("/user-profiles/profiles/user/id/{$user->id}/type/{$type->id}"));
         }
         return $links;
+    }
+
+    public function filterGuestUserWidgets($widgets)
+    {
+        $user = current_user();
+        $userProfileTypes = $this->_db->getTable('UserProfilesType')->findAll();
+        if (!empty($userProfileTypes)) {
+            $widget = array('label' => __('My Profiles'));
+            $html = "<ul>";
+            foreach($userProfileTypes as $type) {
+                $url = url("user-profiles/profiles/user/id/{$user->id}/type/{$type->id}");
+                $html .= sprintf("<li><a href='%s'>%s</a></li>", $url, $type->label);
+            }
+            $html .= "</ul>";
+            $widget['content'] = $html;
+            $widgets[] = $widget;
+        }
+        return $widgets;
     }
 
     public function filterSearchRecordTypes($recordTypes)
