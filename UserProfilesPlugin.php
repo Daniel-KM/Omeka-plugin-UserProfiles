@@ -17,14 +17,14 @@ class UserProfilesPlugin extends Omeka_Plugin_AbstractPlugin
         'admin_users_browse_each',
         'after_delete_user',
         'initialize'
-        );
+    );
 
     protected $_filters = array(
-            'admin_navigation_main',
-            'search_record_types',
-            'api_resources',
-            'api_import_omeka_adapters'
-            );
+        'admin_navigation_main',
+        'search_record_types',
+        'api_resources',
+        'api_import_omeka_adapters'
+    );
 
     protected $_options = null;
 
@@ -62,8 +62,8 @@ class UserProfilesPlugin extends Omeka_Plugin_AbstractPlugin
                 `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
                 `label` text,
                 `description` text,
-    			`element_set_id` int(10) unsigned NOT NULL,
-    			`required_element_ids` text NOT NULL,
+                        `element_set_id` int(10) unsigned NOT NULL,
+                        `required_element_ids` text NOT NULL,
                 `required_multielement_ids` text NOT NULL,
                 `public` tinyint(1) NOT NULL,
                 `required` tinyint(1) NOT NULL,
@@ -73,15 +73,15 @@ class UserProfilesPlugin extends Omeka_Plugin_AbstractPlugin
 
         $sql = "
             CREATE TABLE IF NOT EXISTS `$db->UserProfilesMultiElement` (
-              `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-              `name` text COLLATE utf8_unicode_ci NOT NULL,
-              `description` text COLLATE utf8_unicode_ci NOT NULL,
-              `type` enum('radio','select','multiselect','checkbox') COLLATE utf8_unicode_ci NOT NULL,
-              `options` text COLLATE utf8_unicode_ci NOT NULL,
-              `element_set_id` int(10) unsigned NOT NULL,
-              `order` int(11) DEFAULT NULL,
-              `comment` text COLLATE utf8_unicode_ci,
-              PRIMARY KEY (`id`)
+            `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+            `name` text COLLATE utf8_unicode_ci NOT NULL,
+            `description` text COLLATE utf8_unicode_ci NOT NULL,
+            `type` enum('radio','select','multiselect','checkbox') COLLATE utf8_unicode_ci NOT NULL,
+            `options` text COLLATE utf8_unicode_ci NOT NULL,
+            `element_set_id` int(10) unsigned NOT NULL,
+            `order` int(11) DEFAULT NULL,
+            `comment` text COLLATE utf8_unicode_ci,
+            PRIMARY KEY (`id`)
             ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='A parallel to Elements for checkboxes, radio, selects ' ;
         ";
 
@@ -89,17 +89,19 @@ class UserProfilesPlugin extends Omeka_Plugin_AbstractPlugin
 
         $sql = "
             CREATE TABLE IF NOT EXISTS `$db->UserProfilesMultiValue` (
-              `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-              `profile_type_id` int(10) unsigned NOT NULL,
-              `profile_id` int(10) unsigned NOT NULL,
-              `values` text COLLATE utf8_unicode_ci NOT NULL,
-              `multi_id` int(10) unsigned NOT NULL,
-              PRIMARY KEY (`id`)
+            `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+            `profile_type_id` int(10) unsigned NOT NULL,
+            `profile_id` int(10) unsigned NOT NULL,
+            `values` text COLLATE utf8_unicode_ci NOT NULL,
+            `multi_id` int(10) unsigned NOT NULL,
+            PRIMARY KEY (`id`)
             ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci  ;
         ";
         $db->query($sql);
+
         set_option('user_profiles_required_elements', serialize(array()));
         set_option('user_profiles_required_multielements', serialize(array()));
+
         $plugin = get_db()->getTable('Plugin')->findByDirectoryName('Contribution');
         if($plugin) {
             set_option('user_profiles_contributors_imported', 0);
@@ -114,6 +116,7 @@ class UserProfilesPlugin extends Omeka_Plugin_AbstractPlugin
         foreach($types as $type) {
             $type->getElementSet()->delete();
         }
+
         $sql = "DROP TABLE IF EXISTS `$db->UserProfilesProfile` ";
         $db->query($sql);
 
@@ -158,9 +161,12 @@ class UserProfilesPlugin extends Omeka_Plugin_AbstractPlugin
         }
 
         $firstProfileTypes = $this->_db->getTable('UserProfilesType')->findBy(array(), 1);
-        if(!empty($firstProfileTypes)) {
+        if (!empty($firstProfileTypes)) {
             $type = $firstProfileTypes[0];
-            $links['UserProfiles'] = array('label'=>'My Profiles', 'uri'=>url("/user-profiles/profiles/user/id/{$user->id}/type/{$type->id}"));
+            $links['UserProfiles'] = array(
+                'label' => 'My Profiles',
+                'uri' => url("/user-profiles/profiles/user/id/{$user->id}/type/{$type->id}"),
+            );
         }
         return $links;
     }
@@ -279,15 +285,15 @@ class UserProfilesPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookConfig($args)
     {
-       $db = get_db();
-       $post = $args['post'];
-       foreach($post as $option=>$value) {
-           set_option($option, $value);
-       }
-       if($post['user_profiles_import_contributors'] == 1) {
-           $importer = new UserProfilesImportContribution(array());
-           $importer->perform();
-       }
+        $db = get_db();
+        $post = $args['post'];
+        foreach($post as $option=>$value) {
+            set_option($option, $value);
+        }
+        if($post['user_profiles_import_contributors'] == 1) {
+            $importer = new UserProfilesImportContribution(array());
+            $importer->perform();
+        }
     }
 
     public function hookConfigForm($args)
@@ -317,6 +323,7 @@ class UserProfilesPlugin extends Omeka_Plugin_AbstractPlugin
 
         $acl->allow(array('admin', 'super', 'researcher'), 'UserProfiles_Profile', array('showNotPublic'));
         $acl->allow(array('admin', 'super'), 'UserProfiles_Profile', array('deleteAll'));
+
         $acl->deny(null, 'UserProfiles_Type');
         $acl->allow(array('super', 'admin'), 'UserProfiles_Type');
         //let all logged in people see the types available, but hide non-public ones from searches
