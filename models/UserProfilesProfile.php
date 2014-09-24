@@ -524,19 +524,19 @@ class UserProfilesProfile extends RelatableRecord implements Zend_Acl_Resource_I
         if (!$elementPost = $post['Elements']) {
             return;
         }
-    
+
         foreach ($elementPost as $elementId => $texts) {
             // Pull this from the list of prior retrieved data instead of a new SQL query each time.
             $element = $this->getElementById($elementId);
-            if(!element) {
+            if (!$element) {
                 continue;
             }
             // Add this to the stack of elements that are stored on the form.
             $this->_elementsOnForm[$element->id] = $element;
-    
+
             foreach ($texts as $key => $textAttributes) {
                 $elementText = $this->getTextStringFromFormPost($textAttributes, $element);
-    
+
                 // Save element text filter.
                 $filterName = array('Save', $this->_getRecordType(), $element->set_name, $element->name);
                 $elementText = apply_filters(
@@ -598,7 +598,7 @@ class UserProfilesProfile extends RelatableRecord implements Zend_Acl_Resource_I
         foreach ($this->_textsToSave as $key => $textRecord) {
             if (!$this->_elementTextIsValid($textRecord)) {
                 $elementRecord = $this->getElementById($textRecord->element_id);
-                if(!elementRecord) {
+                if (!$elementRecord) {
                     continue;
                 }
                 $errorMessage = __('The "%s" field has at least one invalid value!', $elementRecord->name);
@@ -621,7 +621,7 @@ class UserProfilesProfile extends RelatableRecord implements Zend_Acl_Resource_I
             // Pull this from the list of prior retrieved data instead of a new SQL query each time.
             // for compatibility with other plugins' forms, getElementById will skip elements not used in profiles
             $element = $this->getElementById($elementId);
-            if(!$element) {
+            if (!$element) {
                 continue;
             }
             // Add this to the stack of elements that are stored on the form.
@@ -654,17 +654,17 @@ class UserProfilesProfile extends RelatableRecord implements Zend_Acl_Resource_I
     private function _elementTextIsValid($elementTextRecord)
     {
         $elementRecord = $this->getElementById($elementTextRecord->element_id);
-        if(!elementRecord) {
+        if (!$elementRecord) {
             $isValid = true;
-        }        
+        }
         $textValue = $elementTextRecord->text;
         // Start out as valid by default.
         $isValid = true;
-    
+
         // Hook into this for plugins.
         // array('Validate', 'Item', 'Title', 'Dublin Core')
         // add_filter(array('Validate', 'Item', 'Title', 'Dublin Core'), 'my_filter_name');
-    
+
         // function my_filter_name($isValid, $elementText, $args)
         // {
         //      $item = $args['item'];
