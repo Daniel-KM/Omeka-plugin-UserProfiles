@@ -275,7 +275,8 @@ class UserProfiles_TypesController extends Omeka_Controller_AbstractActionContro
         foreach($elementIds as $elementId) {
             $elementId = intval(trim($elementId));
             if ($elementId) {
-                if ($element = $elementTable->find($elementId)) {
+                $element = $elementTable->find($elementId);
+                if ($element) {
                     $profileType->removeElement($element);
                 }
             }
